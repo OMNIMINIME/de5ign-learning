@@ -1262,29 +1262,70 @@
             if (box) box.className = 'pronunciation-feedback';
         }
 
+        let activeRecognition = null;
+        let recognitionTimer = null;
+
+        function resetSpeakButton() {
+            const button = document.getElementById('speakBtn');
+            if (!button) return;
+            button.classList.remove('recording');
+            button.disabled = false;
+            button.textContent = '🎤 Speak';
+        }
+
+        function stopActiveRecognition() {
+            if (recognitionTimer) {
+                clearTimeout(recognitionTimer);
+                recognitionTimer = null;
+            }
+            if (activeRecognition) {
+                try { activeRecognition.stop(); } catch (e) { /* already stopped */ }
+                activeRecognition = null;
+            }
+            resetSpeakButton();
+        }
+
         function startPronunciationRecording() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
                 showPronunciationFeedback(
-                    'Listening works, speaking feedback needs Chrome / Edge',
-                    'Your browser may not support speech recognition. Please try Chrome or Edge, then allow microphone access.',
+                    'Speak feedback needs Chrome / Edge',
+                    'Listen still works here. For speaking feedback, please open this page in Chrome or Edge and allow microphone access. Safari often does not support this feature reliably.',
                     false
                 );
                 return;
             }
 
+            stopActiveRecognition();
+
             const button = document.getElementById('speakBtn');
             const recognition = new SpeechRecognition();
+            activeRecognition = recognition;
             recognition.lang = 'zh-TW';
             recognition.continuous = false;
             recognition.interimResults = false;
             recognition.maxAlternatives = 3;
 
             button.classList.add('recording');
+            button.disabled = true;
             button.textContent = '🎤 Listening...';
-            showPronunciationFeedback('I am listening...', 'Say it clearly and naturally. 慢慢說、清楚說。', true);
+            showPronunciationFeedback('I am listening...', 'Say it clearly and naturally. 慢慢說、清楚說。I will stop automatically in 6 seconds.', true);
+
+            recognitionTimer = setTimeout(function() {
+                showPronunciationFeedback(
+                    'I did not hear enough yet',
+                    'Please try again: stay close to the microphone, speak a little louder, and allow microphone access if the browser asks.',
+                    false
+                );
+                stopActiveRecognition();
+            }, 6000);
 
             recognition.onresult = function(e) {
+                if (recognitionTimer) {
+                    clearTimeout(recognitionTimer);
+                    recognitionTimer = null;
+                }
+
                 const heard = Array.from(e.results[0]).map(result => result.transcript).join(' / ');
                 const item = pronunciationItems[pronunciationIndex];
                 const normalizedHeard = heard.replace(/\s/g, '');
@@ -1309,20 +1350,35 @@
                 }
             };
 
-            recognition.onerror = function() {
+            recognition.onerror = function(e) {
+                const reason = e && e.error ? e.error : 'unknown';
                 showPronunciationFeedback(
-                    'Microphone check',
-                    'Please allow microphone access, stay close to the mic, and try again. 請允許麥克風並靠近一點再試一次。',
+                    'Microphone / browser check',
+                    `Speech check stopped (${reason}). Please use Chrome or Edge, allow microphone access, and try again. Listen mode still works.`,
                     false
                 );
+                stopActiveRecognition();
             };
 
             recognition.onend = function() {
-                button.classList.remove('recording');
-                button.textContent = '🎤 Speak';
+                if (recognitionTimer) {
+                    clearTimeout(recognitionTimer);
+                    recognitionTimer = null;
+                }
+                activeRecognition = null;
+                resetSpeakButton();
             };
 
-            recognition.start();
+            try {
+                recognition.start();
+            } catch (e) {
+                showPronunciationFeedback(
+                    'Could not start speaking practice',
+                    'Please refresh the page and try once more in Chrome or Edge. Listen mode still works.',
+                    false
+                );
+                stopActiveRecognition();
+            }
         }
 
         updatePronunciationCount();
