@@ -521,6 +521,137 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+        /* Phase 1: Pronunciation System */
+        .pronunciation-panel {
+            background: linear-gradient(135deg, #e8f4ff 0%, #f7fbff 100%);
+            border: 2px solid #c7dff5;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .pronunciation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .sound-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .sound-card:hover, .sound-card.active {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 18px rgba(44, 95, 79, 0.18);
+        }
+
+        .sound-char {
+            font-size: 2.4rem;
+            color: var(--primary);
+            font-weight: 800;
+            line-height: 1.15;
+            word-break: keep-all;
+        }
+
+        .sound-pinyin {
+            color: var(--secondary);
+            font-weight: 700;
+            margin-top: 0.25rem;
+        }
+
+        .sound-meaning {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .practice-stage {
+            background: #fff;
+            border: 3px solid var(--primary);
+            border-radius: 18px;
+            padding: 2rem;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .practice-char {
+            font-size: 6rem;
+            color: var(--primary);
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .practice-pinyin {
+            font-size: 1.7rem;
+            color: var(--accent);
+            font-weight: 800;
+            margin: 0.5rem 0;
+        }
+
+        .voice-btn {
+            border: none;
+            border-radius: 999px;
+            padding: 0.85rem 1.35rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 0.35rem;
+            transition: all 0.2s ease;
+        }
+
+        .voice-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+        }
+
+        .voice-btn.listen { background: var(--primary); color: white; }
+        .voice-btn.record { background: #d94848; color: white; }
+        .voice-btn.next { background: var(--accent); color: #2a2a2a; }
+
+        .voice-btn.recording {
+            animation: voicePulse 1s infinite;
+            background: #b71c1c;
+        }
+
+        @keyframes voicePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+        }
+
+        .pronunciation-feedback {
+            display: none;
+            background: #f1fbf4;
+            border-left: 6px solid var(--success);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            margin-top: 1rem;
+        }
+
+        .pronunciation-feedback.show { display: block; }
+        .pronunciation-feedback.try-again {
+            background: #fff7ed;
+            border-left-color: var(--warning);
+        }
+
+        .browser-note {
+            font-size: 0.92rem;
+            color: #555;
+            background: #fff8e1;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .practice-char { font-size: 4.5rem; }
+        }
     </style>
 </head>
 <body>
@@ -543,6 +674,10 @@
                 <li class="nav-item" onclick="showSection('language')">
                     <span class="icon">✍️</span>
                     <span>語文練習</span>
+                </li>
+                <li class="nav-item" onclick="showSection('pronunciation')">
+                    <span class="icon">🔊</span>
+                    <span>發音練習</span>
                 </li>
                 <li class="nav-item" onclick="showSection('emotion')">
                     <span class="icon">💬</span>
@@ -662,6 +797,69 @@
 
                 <div class="success-message" id="languageSuccess">
                     ✅ 太棒了！完成語文練習！現在可以進行情感表達囉 →
+                </div>
+            </div>
+
+            <!-- 發音練習 Section -->
+            <div id="pronunciation" class="section">
+                <h2 style="color: var(--primary); margin-bottom: 2rem;">🔊 發音練習：聽、說、回饋、再練習</h2>
+
+                <div class="pronunciation-panel">
+                    <h3 style="color: var(--primary); margin-bottom: 0.75rem;">🎯 How it works</h3>
+                    <p>1. Click a character to listen. 點字聽發音。</p>
+                    <p>2. Press “Speak” and say it out loud. 按下 Speak 後跟著說。</p>
+                    <p>3. Get friendly feedback and practice again. 收到鼓勵式回饋，再練習。</p>
+                    <div class="browser-note">💡 Best on Chrome / Edge. Safari may support listening, but speech recognition can be limited.</div>
+                </div>
+
+                <div class="pronunciation-grid" id="soundGrid">
+                    <div class="sound-card active" onclick="selectPronunciationItem(0, this)">
+                        <div class="sound-char">種</div>
+                        <div class="sound-pinyin">zhǒng</div>
+                        <div class="sound-meaning">seed</div>
+                    </div>
+                    <div class="sound-card" onclick="selectPronunciationItem(1, this)">
+                        <div class="sound-char">子</div>
+                        <div class="sound-pinyin">zǐ / zi</div>
+                        <div class="sound-meaning">child / seed suffix</div>
+                    </div>
+                    <div class="sound-card" onclick="selectPronunciationItem(2, this)">
+                        <div class="sound-char">溫暖</div>
+                        <div class="sound-pinyin">wēn nuǎn</div>
+                        <div class="sound-meaning">warm</div>
+                    </div>
+                    <div class="sound-card" onclick="selectPronunciationItem(3, this)">
+                        <div class="sound-char">發芽</div>
+                        <div class="sound-pinyin">fā yá</div>
+                        <div class="sound-meaning">sprout</div>
+                    </div>
+                    <div class="sound-card" onclick="selectPronunciationItem(4, this)">
+                        <div class="sound-char">成長</div>
+                        <div class="sound-pinyin">chéng zhǎng</div>
+                        <div class="sound-meaning">grow</div>
+                    </div>
+                    <div class="sound-card" onclick="selectPronunciationItem(5, this)">
+                        <div class="sound-char">小種子</div>
+                        <div class="sound-pinyin">xiǎo zhǒng zi</div>
+                        <div class="sound-meaning">little seed</div>
+                    </div>
+                </div>
+
+                <div class="practice-stage">
+                    <div class="practice-pinyin" id="practicePinyin">zhǒng</div>
+                    <div class="practice-char" id="practiceChar">種</div>
+                    <div class="meaning" id="practiceMeaning">seed</div>
+                    <div style="margin-top: 1.25rem;">
+                        <button class="voice-btn listen" onclick="playPronunciation()">🔊 Listen</button>
+                        <button class="voice-btn record" id="speakBtn" onclick="startPronunciationRecording()">🎤 Speak</button>
+                        <button class="voice-btn next" onclick="nextPronunciationItem()">⏭️ Next</button>
+                    </div>
+                    <div style="margin-top: 1rem; color: #666;">Practice count: <span id="pronunciationCount">0</span></div>
+                </div>
+
+                <div class="pronunciation-feedback" id="pronunciationFeedback">
+                    <strong id="pronunciationFeedbackTitle">Great job!</strong><br>
+                    <span id="pronunciationFeedbackText">Keep going!</span>
                 </div>
             </div>
 
@@ -861,7 +1059,13 @@
             });
             
             document.getElementById(sectionId).classList.add('active');
-            event.target.closest('.nav-item').classList.add('active');
+            const clickedNavItem = event && event.target ? event.target.closest('.nav-item') : null;
+            if (clickedNavItem) {
+                clickedNavItem.classList.add('active');
+            } else {
+                const matchingNav = document.querySelector(`.nav-item[onclick*="${sectionId}"]`);
+                if (matchingNav) matchingNav.classList.add('active');
+            }
         }
 
         // Character highlighting
@@ -992,6 +1196,136 @@
                 }, 2000);
             }
         }
+
+        // Phase 1: Pronunciation system
+        const pronunciationItems = [
+            { text: '種', pinyin: 'zhǒng', meaning: 'seed', accepted: ['種', '种'] },
+            { text: '子', pinyin: 'zǐ / zi', meaning: 'child / seed suffix', accepted: ['子'] },
+            { text: '溫暖', pinyin: 'wēn nuǎn', meaning: 'warm', accepted: ['溫暖', '温暖'] },
+            { text: '發芽', pinyin: 'fā yá', meaning: 'sprout', accepted: ['發芽', '发芽'] },
+            { text: '成長', pinyin: 'chéng zhǎng', meaning: 'grow', accepted: ['成長', '成长'] },
+            { text: '小種子', pinyin: 'xiǎo zhǒng zi', meaning: 'little seed', accepted: ['小種子', '小种子'] }
+        ];
+
+        let pronunciationIndex = 0;
+        let pronunciationCount = Number(localStorage.getItem('de5ignPronunciationCount') || '0');
+
+        function updatePronunciationCount() {
+            const el = document.getElementById('pronunciationCount');
+            if (el) el.textContent = pronunciationCount;
+        }
+
+        function speakChinese(text) {
+            if (!('speechSynthesis' in window)) {
+                alert('This browser cannot play speech. Please try Chrome or Edge.');
+                return;
+            }
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-TW';
+            utterance.rate = 0.72;
+            utterance.pitch = 1.05;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function playPronunciation() {
+            speakChinese(pronunciationItems[pronunciationIndex].text);
+        }
+
+        function selectPronunciationItem(index, card) {
+            pronunciationIndex = index;
+            document.querySelectorAll('.sound-card').forEach(item => item.classList.remove('active'));
+            if (card) card.classList.add('active');
+            const item = pronunciationItems[index];
+            document.getElementById('practiceChar').textContent = item.text;
+            document.getElementById('practicePinyin').textContent = item.pinyin;
+            document.getElementById('practiceMeaning').textContent = item.meaning;
+            hidePronunciationFeedback();
+            playPronunciation();
+        }
+
+        function nextPronunciationItem() {
+            const next = (pronunciationIndex + 1) % pronunciationItems.length;
+            const nextCard = document.querySelectorAll('.sound-card')[next];
+            selectPronunciationItem(next, nextCard);
+        }
+
+        function showPronunciationFeedback(title, message, success) {
+            const box = document.getElementById('pronunciationFeedback');
+            document.getElementById('pronunciationFeedbackTitle').textContent = title;
+            document.getElementById('pronunciationFeedbackText').textContent = message;
+            box.className = 'pronunciation-feedback show' + (success ? '' : ' try-again');
+        }
+
+        function hidePronunciationFeedback() {
+            const box = document.getElementById('pronunciationFeedback');
+            if (box) box.className = 'pronunciation-feedback';
+        }
+
+        function startPronunciationRecording() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                showPronunciationFeedback(
+                    'Listening works, speaking feedback needs Chrome / Edge',
+                    'Your browser may not support speech recognition. Please try Chrome or Edge, then allow microphone access.',
+                    false
+                );
+                return;
+            }
+
+            const button = document.getElementById('speakBtn');
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'zh-TW';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 3;
+
+            button.classList.add('recording');
+            button.textContent = '🎤 Listening...';
+            showPronunciationFeedback('I am listening...', 'Say it clearly and naturally. 慢慢說、清楚說。', true);
+
+            recognition.onresult = function(e) {
+                const heard = Array.from(e.results[0]).map(result => result.transcript).join(' / ');
+                const item = pronunciationItems[pronunciationIndex];
+                const normalizedHeard = heard.replace(/\s/g, '');
+                const matched = item.accepted.some(ans => normalizedHeard.includes(ans));
+
+                pronunciationCount += 1;
+                localStorage.setItem('de5ignPronunciationCount', String(pronunciationCount));
+                updatePronunciationCount();
+
+                if (matched) {
+                    showPronunciationFeedback(
+                        '🌟 Beautiful pronunciation!',
+                        `I heard “${heard}”. Your “${item.text}” sounds clear. Try saying it once more with confidence!`,
+                        true
+                    );
+                } else {
+                    showPronunciationFeedback(
+                        '💪 Good try — let’s shape it a little more.',
+                        `I heard “${heard}”. Listen again to “${item.text}” (${item.pinyin}), then try a little slower.`,
+                        false
+                    );
+                }
+            };
+
+            recognition.onerror = function() {
+                showPronunciationFeedback(
+                    'Microphone check',
+                    'Please allow microphone access, stay close to the mic, and try again. 請允許麥克風並靠近一點再試一次。',
+                    false
+                );
+            };
+
+            recognition.onend = function() {
+                button.classList.remove('recording');
+                button.textContent = '🎤 Speak';
+            };
+
+            recognition.start();
+        }
+
+        updatePronunciationCount();
     </script>
 </body>
 </html>
