@@ -736,27 +736,35 @@
 
                 <div class="learning-levels">
                     <div class="level-card" onclick="selectLevel('char', this)">
-                        <div class="icon">📝</div>
-                        <h3>Level 1 — 字</h3>
-                        <p>認識生字、筆順</p>
-                        <p style="font-size: 0.85rem; margin-top: 1rem; color: #666;">適合 3-5 歲</p>
+                        <div class="icon">🌱</div>
+                        <h3>Level 1 — Top 200 基本字</h3>
+                        <p>高頻基礎字，mostly 象形／可視化字：日、月、山、水、木、田、口、人</p>
+                        <p style="font-size: 0.85rem; margin-top: 1rem; color: #666;">先看圖像 → 認字形 → 聽發音</p>
                     </div>
                     <div class="level-card" onclick="selectLevel('word', this)">
-                        <div class="icon">📖</div>
-                        <h3>Level 2 — 詞</h3>
-                        <p>詞語理解、配對</p>
-                        <p style="font-size: 0.85rem; margin-top: 1rem; color: #666;">適合 5-8 歲</p>
+                        <div class="icon">🏡</div>
+                        <h3>Level 2 — 200–1000 常用生活字詞</h3>
+                        <p>日常生活與故事常見字詞：溫暖、發芽、成長、土地、河流</p>
+                        <p style="font-size: 0.85rem; margin-top: 1rem; color: #666;">從字 → 詞 → 情境配對</p>
                     </div>
                     <div class="level-card" onclick="selectLevel('sentence', this)">
-                        <div class="icon">✏️</div>
-                        <h3>Level 3 — 應用造句</h3>
-                        <p>造句、重述故事</p>
-                        <p style="font-size: 0.85rem; margin-top: 1rem; color: #666;">適合 8-12 歲</p>
+                        <div class="icon">💡</div>
+                        <h3>Level 3 — Meaning Layer 第二層意義</h3>
+                        <p>學抽象與延伸意義：種子＝希望／潛能，溫暖＝關心／安全感</p>
+                        <p style="font-size: 0.85rem; margin-top: 1rem; color: #666;">從意思 → 感受 → 表達</p>
                     </div>
                 </div>
 
                 <div id="exercise-char" class="exercise-area" style="display: none;">
-                    <div class="question">📝 請跟著寫出這個字：「種」</div>
+                    <div class="question">🌱 Level 1：Top 200 基本字（mostly 象形）</div>
+                    <p style="margin-bottom: 1rem; color: #555;">先從可看見、可想像的字開始，建立孩子對中文字形的信心。</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                        <div style="background:white; border:2px solid var(--border); border-radius:12px; padding:1rem; text-align:center;"><div style="font-size:2.2rem;">☀️</div><strong style="font-size:2rem;">日</strong><br><span>sun</span></div>
+                        <div style="background:white; border:2px solid var(--border); border-radius:12px; padding:1rem; text-align:center;"><div style="font-size:2.2rem;">🌙</div><strong style="font-size:2rem;">月</strong><br><span>moon</span></div>
+                        <div style="background:white; border:2px solid var(--border); border-radius:12px; padding:1rem; text-align:center;"><div style="font-size:2.2rem;">⛰️</div><strong style="font-size:2rem;">山</strong><br><span>mountain</span></div>
+                        <div style="background:white; border:2px solid var(--border); border-radius:12px; padding:1rem; text-align:center;"><div style="font-size:2.2rem;">💧</div><strong style="font-size:2rem;">水</strong><br><span>water</span></div>
+                    </div>
+                    <div class="question" style="margin-top: 1.5rem;">請跟著寫出這個字：「種」</div>
                     <canvas id="charCanvas" style="border: 2px solid var(--border); border-radius: 8px; background: white; cursor: crosshair;" width="400" height="400"></canvas>
                     <div style="margin-top: 1rem;">
                         <button class="btn btn-secondary" onclick="clearCanvas()">重寫</button>
@@ -765,13 +773,14 @@
                 </div>
 
                 <div id="exercise-word" class="exercise-area" style="display: none;">
-                    <div class="question">📖 請配對詞語和意思：</div>
+                    <div class="question">🏡 Level 2：200–1000 常用生活字詞配對</div>
+                    <p style="margin-bottom: 1rem; color: #555;">把常見生活詞放回情境，孩子會更容易理解與使用。</p>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0;">
                         <div style="background: white; padding: 1rem; border-radius: 8px; cursor: pointer; border: 2px solid var(--border);" onclick="selectMatch(this, 'word1')">
                             溫暖
                         </div>
                         <div style="background: white; padding: 1rem; border-radius: 8px; cursor: pointer; border: 2px solid var(--border);" onclick="selectMatch(this, 'mean1')">
-                            讓人覺得舒服、不冷
+                            讓人覺得舒服、不冷，也像被照顧
                         </div>
                         <div style="background: white; padding: 1rem; border-radius: 8px; cursor: pointer; border: 2px solid var(--border);" onclick="selectMatch(this, 'word2')">
                             肥沃
@@ -784,14 +793,18 @@
                 </div>
 
                 <div id="exercise-sentence" class="exercise-area" style="display: none;">
-                    <div class="question">✏️ 用「溫暖」造一個句子：</div>
-                    <textarea class="input-box" id="sentenceInput" placeholder="例如：媽媽的擁抱很溫暖..."></textarea>
+                    <div class="question">💡 Level 3：Meaning Layer 第二層意義</div>
+                    <p style="margin-bottom: 1rem; color: #555;">把字詞帶到感受與價值：例如「種子」不只是 seed，也可以代表希望、潛能、開始。</p>
+                    <div style="background:white; border-left:4px solid var(--accent); padding:1rem; border-radius:8px; margin-bottom:1rem;">
+                        <strong>例子：</strong> 小種子慢慢長大，就像我每天練習中文，也會一點一點進步。
+                    </div>
+                    <textarea class="input-box" id="sentenceInput" placeholder="請選一個詞：種子／溫暖／成長。寫下它的第二層意思或你的感受..."></textarea>
                     <div style="margin-top: 1rem;">
                         <button class="btn btn-primary" onclick="submitSentence()">提交</button>
                     </div>
                     <div id="sentenceFeedback" class="feedback-box" style="display: none; margin-top: 1rem;">
-                        <strong>✨ 很棒的句子！</strong><br>
-                        你使用了「溫暖」來描述感受，非常好！
+                        <strong>✨ 很棒的思考！</strong><br>
+                        你正在把字詞和感受連起來，這就是更深一層的中文理解。
                     </div>
                 </div>
 
@@ -1127,7 +1140,7 @@
         }
 
         function checkWriting() {
-            alert('✅ 寫得很好！繼續練習下一個字！');
+            alert('🌟 很棒，你願意動手寫就是進步！如果覺得還不像也沒關係，再描一次會更穩。');
             document.getElementById('languageSuccess').classList.add('show');
         }
 
@@ -1138,7 +1151,7 @@
         }
 
         function checkMatching() {
-            alert('✅ 配對正確！你很棒！');
+            alert('🌟 很好，你正在把詞和意思連起來！如果還不確定，可以再讀一次故事裡的句子，然後重新配對。');
             document.getElementById('languageSuccess').classList.add('show');
         }
 
@@ -1343,8 +1356,8 @@
                     );
                 } else {
                     showPronunciationFeedback(
-                        '💪 Good try — let’s shape it a little more.',
-                        `I heard “${heard}”. Listen again to “${item.text}” (${item.pinyin}), then try a little slower.`,
+                        '🌱 Nice effort — you are building your Chinese ear!',
+                        `I heard “${heard}”. That was a brave try. Let’s listen to “${item.text}” (${item.pinyin}) once more, then say it slowly together.`,
                         false
                     );
                 }
