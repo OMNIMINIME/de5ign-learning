@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>De5ign 繪本學習平台 | 互動式中文學習</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2c5f4f;
+            --secondary: #8b4513;
+            --accent: #d4a574;
+            --light: #f8f5f0;
+            --text: #2a2a2a;
+            --border: #d4c5b0;
+            --success: #4caf50;
+            --warning: #ff9800;
+        }
+
+        body {
+            font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+            background: linear-gradient(135deg, #f8f5f0 0%, #ede4d8 100%);
+            color: var(--text);
+            line-height: 1.8;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, #3d7a64 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .progress-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: fit-content;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 2rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-item:hover {
+            background: var(--light);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-item .icon {
+            font-size: 1.3rem;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            min-height: 600px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .book-reader {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .book-page {
+            background: #fff;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            min-height: 400px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .book-image {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, #e8d5c4 0%, #f0e5d8 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .book-text {
+            font-size: 1.3rem;
+            line-height: 2.2;
+            color: var(--text);
+        }
+
+        .character {
+            display: inline-block;
+            padding: 0.2rem 0.4rem;
+            margin: 0.1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .character:hover {
+            background: #fff3cd;
+            transform: scale(1.1);
+        }
+
+        .character.highlighted {
+            background: #ffd700;
+            font-weight: 700;
+        }
+
+        .learning-levels {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .level-card {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+
+        .level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .level-card.selected {
+            border-color: var(--primary);
+            background: white;
+        }
+
+        .level-card .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .exercise-area {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .question {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .input-box {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .input-box:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1f4a3c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .emotion-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .emotion-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .emotion-card:hover {
+            transform: scale(1.05);
+            border-color: var(--primary);
+        }
+
+        .emotion-card.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .emotion-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .story-editor {
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            background: white;
+        }
+
+        .editor-toolbar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .toolbar-btn {
+            padding: 0.5rem 1rem;
+            background: var(--light);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .toolbar-btn:hover {
+            background: var(--border);
+        }
+
+        .project-card {
+            background: linear-gradient(135deg, white 0%, #fafafa 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            border-left: 5px solid var(--secondary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .project-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .status-planning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-progress {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-complete {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .odper-steps {
+            display: flex;
+            justify-content: space-between;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .odper-steps::before {
+            content: '';
+            position: absolute;
+            top: 25px;
+            left: 50px;
+            right: 50px;
+            height: 2px;
+            background: var(--border);
+            z-index: 0;
+        }
+
+        .odper-step {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border: 3px solid var(--border);
+            border-radius: 50%;
+            margin: 0 auto 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--text);
+            transition: all 0.3s;
+        }
+
+        .odper-step.active .step-circle {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: scale(1.2);
+        }
+
+        .odper-step.completed .step-circle {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .work-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .work-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+
+        .work-thumbnail {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #e8d5c4 0%, #f0e5d8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+
+        .work-info {
+            padding: 1rem;
+        }
+
+        .work-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .work-meta {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .feedback-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196f3;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .success-message {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+            }
+
+            .book-reader {
+                grid-template-columns: 1fr;
+            }
+
+            .learning-levels {
+                grid-template-columns: 1fr;
+            }
+
+            .emotion-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 De5ign 繪本學習平台</h1>
+        <div class="user-info">
+            <div class="progress-badge">🌟 本月進度: 3/5 活動</div>
+            <div class="progress-badge">👤 學習者</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <ul class="nav-menu">
+                <li class="nav-item active" onclick="showSection('reader')">
+                    <span class="icon">📖</span>
+                    <span>繪本閱讀</span>
+                </li>
+                <li class="nav-item" onclick="showSection('language')">
+                    <span class="icon">✍️</span>
+                    <span>語文練習</span>
+                </li>
+                <li class="nav-item" onclick="showSection('emotion')">
+                    <span class="icon">💬</span>
+                    <span>情感表達</span>
+                </li>
+                <li class="nav-item" onclick="showSection('creation')">
+                    <span class="icon">✨</span>
+                    <span>創作故事</span>
+                </li>
+                <li class="nav-item" onclick="showSection('project')">
+                    <span class="icon">🌱</span>
+                    <span>專題學習</span>
+                </li>
+                <li class="nav-item" onclick="showSection('gallery')">
+                    <span class="icon">🎨</span>
+                    <span>作品發表</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- 繪本閱讀 Section -->
+            <div id="reader" class="section active">
+                <h2 style="color: var(--primary); margin-bottom: 2rem;">📖 本月繪本：《小種子的旅程》</h2>
+                
+                <div class="book-reader">
+                    <div class="book-page">
+                        <div class="book-image">🌱</div>
+                        <div class="book-text">
+                            <p>在一個<span class="character" onclick="highlightChar(this)">溫</span><span class="character" onclick="highlightChar(this)">暖</span>的<span class="character" onclick="highlightChar(this)">春</span><span class="character" onclick="highlightChar(this)">天</span>，</p>
+                            <p>小<span class="character" onclick="highlightChar(this)">種</span><span class="character" onclick="highlightChar(this)">子</span>離開了媽媽。</p>
+                            <p>它隨著<span class="character" onclick="highlightChar(this)">風</span>兒飄啊飄，</p>
+                            <p>開始了一段<span class="character" onclick="highlightChar(this)">神</span><span class="character" onclick="highlightChar(this)">奇</span>的旅程。</p>
+                        </div>
+                    </div>
+                    <div class="book-page">
+                        <div class="book-image">🌸</div>
+                        <div class="book-text">
+                            <p>小種子飛過高山，</p>
+                            <p>飛過河流，</p>
+                            <p>最後落在一片<span class="character" onclick="highlightChar(this)">肥</span><span class="character" onclick="highlightChar(this)">沃</span>的土地上。</p>
+                            <p>它決定在這裡<span class="character" onclick="highlightChar(this)">生</span><span class="character" onclick="highlightChar(this)">根</span>發<span class="character" onclick="highlightChar(this)">芽</span>。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="showSection('language')">開始學習 →</button>
+                </div>
+            </div>
+
+            <!-- 語文練習 Section -->
+            <div id="language" class="section">
+                <h2 style="color: var(--primary); margin-bottom: 2rem;">✍️ 語文練習：選擇你的級別</h2>
+
+                <div class="learning-levels">
+                    <div class="level-card" onclick="selectLevel('char', this)">
+                        <div class="icon">📝</div>
+                        <h3>Level 1 — 字</h3>
+                        <p>認識生字、筆順</p>
+                        <p style="font-size: 0.85rem; margin-top: 1rem; color: #666;">適合 3-5 歲</p>
+                    </div>
+                    <div class="level-card" onclick="selectLevel('word', this)">
+                        <div class="icon">📖</div>
+                        <h3>Level 2 — 詞</h3>
+                        <p>詞語理解、配對</p>
+                        <p style="font-size: 0.85rem; margin-top: 1rem; color: #666;">適合 5-8 歲</p>
+                    </div>
+                    <div class="level-card" onclick="selectLevel('sentence', this)">
+                        <div class="icon">✏️</div>
+                        <h3>Level 3 — 應用造句</h3>
+                        <p>造句、重述故事</p>
+                        <p style="font-size: 0.85rem; margin-top: 1rem; color: #666;">適合 8-12 歲</p>
+                    </div>
+                </div>
+
+                <div id="exercise-char" class="exercise-area" style="display: none;">
+                    <div class="question">📝 請跟著寫出這個字：「種」</div>
+                    <canvas id="charCanvas" style="border: 2px solid var(--border); border-radius: 8px; background: white; cursor: crosshair;" width="400" height="400"></canvas>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-secondary" onclick="clearCanvas()">重寫</button>
+                        <button class="btn btn-primary" onclick="checkWriting()">檢查</button>
+                    </div>
+                </div>
+
+                <div id="exercise-word" class="exercise-area" style="display: none;">
+                    <div class="question">📖 請配對詞語和意思：</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0;">
+                        <div style="background: white; padding: 1rem; border-radius: 8px; cursor: pointer; border: 2px solid var(--border);" onclick="selectMatch(this, 'word1')">
+                            溫暖
+                        </div>
+                        <div style="background: white; padding: 1rem; border-radius: 8px; cursor: pointer; border: 2px solid var(--border);" onclick="selectMatch(this, 'mean1')">
+                            讓人覺得舒服、不冷
+                        </div>
+                        <div style="background: white; padding: 1rem; border-radius: 8px; cursor: pointer; border: 2px solid var(--border);" onclick="selectMatch(this, 'word2')">
+                            肥沃
+                        </div>
+                        <div style="background: white; padding: 1rem; border-radius: 8px; cursor: pointer; border: 2px solid var(--border);" onclick="selectMatch(this, 'mean2')">
+                            土地很營養、適合種植
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="checkMatching()">提交答案</button>
+                </div>
+
+                <div id="exercise-sentence" class="exercise-area" style="display: none;">
+                    <div class="question">✏️ 用「溫暖」造一個句子：</div>
+                    <textarea class="input-box" id="sentenceInput" placeholder="例如：媽媽的擁抱很溫暖..."></textarea>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-primary" onclick="submitSentence()">提交</button>
+                    </div>
+                    <div id="sentenceFeedback" class="feedback-box" style="display: none; margin-top: 1rem;">
+                        <strong>✨ 很棒的句子！</strong><br>
+                        你使用了「溫暖」來描述感受，非常好！
+                    </div>
+                </div>
+
+                <div class="success-message" id="languageSuccess">
+                    ✅ 太棒了！完成語文練習！現在可以進行情感表達囉 →
+                </div>
+            </div>
+
+            <!-- 情感表達 Section -->
+            <div id="emotion" class="section">
+                <h2 style="color: var(--primary); margin-bottom: 2rem;">💬 情感表達：小種子的心情</h2>
+
+                <p style="font-size: 1.1rem; margin-bottom: 2rem;">
+                    當小種子離開媽媽的時候，它的心情可能是什麼樣的？請選擇：
+                </p>
+
+                <div class="emotion-selector">
+                    <div class="emotion-card" onclick="selectEmotion(this, '害怕')">
+                        <div class="emotion-icon">😰</div>
+                        <div>害怕</div>
+                    </div>
+                    <div class="emotion-card" onclick="selectEmotion(this, '興奮')">
+                        <div class="emotion-icon">😊</div>
+                        <div>興奮</div>
+                    </div>
+                    <div class="emotion-card" onclick="selectEmotion(this, '傷心')">
+                        <div class="emotion-icon">😢</div>
+                        <div>傷心</div>
+                    </div>
+                    <div class="emotion-card" onclick="selectEmotion(this, '好奇')">
+                        <div class="emotion-icon">🤔</div>
+                        <div>好奇</div>
+                    </div>
+                </div>
+
+                <div class="exercise-area">
+                    <div class="question">💭 請分享：你為什麼覺得小種子有這樣的心情？</div>
+                    <textarea class="input-box" id="emotionReason" placeholder="我覺得小種子..."></textarea>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-primary" onclick="submitEmotion()">分享我的想法</button>
+                    </div>
+                </div>
+
+                <div id="emotionFeedback" style="display: none; margin-top: 2rem;">
+                    <div class="feedback-box">
+                        <strong>🌟 很好的觀察！</strong><br>
+                        你能夠理解小種子的心情，這表示你很有同理心！
+                    </div>
+                </div>
+            </div>
+
+            <!-- 創作故事 Section -->
+            <div id="creation" class="section">
+                <h2 style="color: var(--primary); margin-bottom: 2rem;">✨ 創作故事：寫你自己的版本</h2>
+
+                <p style="font-size: 1.1rem; margin-bottom: 2rem;">
+                    如果你是小種子，你的旅程會是什麼樣的？寫下你的故事吧！
+                </p>
+
+                <div class="story-editor">
+                    <div class="editor-toolbar">
+                        <button class="toolbar-btn" onclick="insertTemplate('開頭')">📝 開頭範本</button>
+                        <button class="toolbar-btn" onclick="insertTemplate('經過')">🌊 經過範本</button>
+                        <button class="toolbar-btn" onclick="insertTemplate('結尾')">🌟 結尾範本</button>
+                    </div>
+                    <textarea class="input-box" id="storyEditor" style="min-height: 300px;" placeholder="我是一顆小種子..."></textarea>
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <button class="btn btn-success" onclick="saveStory()">💾 儲存故事</button>
+                    <button class="btn btn-primary" onclick="publishStory()">🌟 發表到作品區</button>
+                </div>
+
+                <div id="storySuccess" class="success-message">
+                    ✅ 故事已儲存！你可以到「作品發表」區查看你的創作！
+                </div>
+            </div>
+
+            <!-- 專題學習 Section -->
+            <div id="project" class="section">
+                <h2 style="color: var(--primary); margin-bottom: 2rem;">🌱 專題學習：ODPER 引導</h2>
+
+                <div class="odper-steps">
+                    <div class="odper-step active">
+                        <div class="step-circle">O</div>
+                        <div>觀察</div>
+                    </div>
+                    <div class="odper-step">
+                        <div class="step-circle">D</div>
+                        <div>發現</div>
+                    </div>
+                    <div class="odper-step">
+                        <div class="step-circle">P</div>
+                        <div>規劃</div>
+                    </div>
+                    <div class="odper-step">
+                        <div class="step-circle">E</div>
+                        <div>執行</div>
+                    </div>
+                    <div class="odper-step">
+                        <div class="step-circle">R</div>
+                        <div>反思</div>
+                    </div>
+                </div>
+
+                <!-- 專題一：五行藝術 -->
+                <div class="project-card">
+                    <div class="project-header">
+                        <h3 style="color: var(--secondary);">🎨 專題一：五行藝術</h3>
+                        <span class="project-status status-planning">規劃中</span>
+                    </div>
+                    <p><strong>主題：</strong>以五行（金、木、水、火、土）為框架，探索自我與自然的關係</p>
+                    <p><strong>時間：</strong>10月–12月</p>
+                    <p><strong>出發點：</strong>自己或家人的身心健康</p>
+                    
+                    <div class="exercise-area" style="margin-top: 1.5rem;">
+                        <div class="question">💡 選擇一個五行元素，思考它如何與你的生活連結：</div>
+                        <select class="input-box" style="min-height: auto; padding: 0.75rem;">
+                            <option>選擇元素...</option>
+                            <option>金 — 堅強、收斂</option>
+                            <option>木 — 生長、創造</option>
+                            <option>水 — 流動、滋養</option>
+                            <option>火 — 熱情、轉化</option>
+                            <option>土 — 穩定、孕育</option>
+                        </select>
+                        <textarea class="input-box" placeholder="我選擇這個元素是因為..." style="margin-top: 1rem;"></textarea>
+                        <button class="btn btn-primary" style="margin-top: 1rem;">提交想法</button>
+                    </div>
+                </div>
+
+                <!-- 專題二：自由發想展演 -->
+                <div class="project-card">
+                    <div class="project-header">
+                        <h3 style="color: var(--secondary);">🎭 專題二：自由發想展演</h3>
+                        <span class="project-status status-progress">進行中</span>
+                    </div>
+                    <p><strong>主題：</strong>學習者自主發想（人文/藝術/科學）</p>
+                    <p><strong>時間：</strong>2月–5月</p>
+                    <p><strong>原則：</strong>不傷己、不傷人、對社群有益</p>
+                    
+                    <div class="exercise-area" style="margin-top: 1.5rem;">
+                        <div class="question">🌟 你想為家人或社區做什麼？</div>
+                        <textarea class="input-box" placeholder="我想要..." style="min-height: 120px;"></textarea>
+                        <button class="btn btn-primary" style="margin-top: 1rem;">開始規劃</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 作品發表 Section -->
+            <div id="gallery" class="section">
+                <h2 style="color: var(--primary); margin-bottom: 2rem;">🎨 作品發表區</h2>
+
+                <div class="gallery">
+                    <div class="work-card">
+                        <div class="work-thumbnail">📖</div>
+                        <div class="work-info">
+                            <div class="work-title">小種子的冒險</div>
+                            <div class="work-meta">故事創作 | 小明 | 2026/06/20</div>
+                        </div>
+                    </div>
+
+                    <div class="work-card">
+                        <div class="work-thumbnail">🎨</div>
+                        <div class="work-info">
+                            <div class="work-title">我的五行畫</div>
+                            <div class="work-meta">藝術創作 | 小華 | 2026/06/18</div>
+                        </div>
+                    </div>
+
+                    <div class="work-card">
+                        <div class="work-thumbnail">🌱</div>
+                        <div class="work-info">
+                            <div class="work-title">種子的秘密</div>
+                            <div class="work-meta">科學探索 | 小芳 | 2026/06/15</div>
+                        </div>
+                    </div>
+
+                    <div class="work-card" style="border: 3px dashed var(--border); background: var(--light);">
+                        <div class="work-thumbnail">➕</div>
+                        <div class="work-info">
+                            <div class="work-title">發表你的作品</div>
+                            <div class="work-meta">點擊上傳你的創作</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 3rem;">
+                    <button class="btn btn-success">📤 上傳我的作品</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            document.getElementById(sectionId).classList.add('active');
+            event.target.closest('.nav-item').classList.add('active');
+        }
+
+        // Character highlighting
+        function highlightChar(element) {
+            element.classList.toggle('highlighted');
+        }
+
+        // Level selection
+        function selectLevel(level, element) {
+            document.querySelectorAll('.level-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            element.classList.add('selected');
+
+            document.querySelectorAll('[id^="exercise-"]').forEach(ex => {
+                ex.style.display = 'none';
+            });
+            document.getElementById('exercise-' + level).style.display = 'block';
+
+            if (level === 'char') {
+                initCanvas();
+            }
+        }
+
+        // Canvas for character writing
+        let canvas, ctx, drawing = false;
+
+        function initCanvas() {
+            canvas = document.getElementById('charCanvas');
+            ctx = canvas.getContext('2d');
+            ctx.strokeStyle = '#2c5f4f';
+            ctx.lineWidth = 8;
+            ctx.lineCap = 'round';
+
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+        }
+
+        function startDrawing(e) {
+            drawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+        }
+
+        function stopDrawing() {
+            drawing = false;
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function checkWriting() {
+            alert('✅ 寫得很好！繼續練習下一個字！');
+            document.getElementById('languageSuccess').classList.add('show');
+        }
+
+        // Word matching
+        function selectMatch(element, id) {
+            element.style.background = 'var(--accent)';
+            element.style.color = 'white';
+        }
+
+        function checkMatching() {
+            alert('✅ 配對正確！你很棒！');
+            document.getElementById('languageSuccess').classList.add('show');
+        }
+
+        // Sentence submission
+        function submitSentence() {
+            const sentence = document.getElementById('sentenceInput').value;
+            if (sentence.trim()) {
+                document.getElementById('sentenceFeedback').style.display = 'block';
+                document.getElementById('languageSuccess').classList.add('show');
+            }
+        }
+
+        // Emotion selection
+        let selectedEmotion = '';
+        function selectEmotion(element, emotion) {
+            document.querySelectorAll('.emotion-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            selectedEmotion = emotion;
+        }
+
+        function submitEmotion() {
+            const reason = document.getElementById('emotionReason').value;
+            if (selectedEmotion && reason.trim()) {
+                document.getElementById('emotionFeedback').style.display = 'block';
+            }
+        }
+
+        // Story templates
+        function insertTemplate(type) {
+            const editor = document.getElementById('storyEditor');
+            const templates = {
+                '開頭': '我是一顆小種子，我的名字叫做...\n',
+                '經過': '在旅程中，我遇到了...\n',
+                '結尾': '最後，我終於...\n'
+            };
+            editor.value += templates[type];
+        }
+
+        function saveStory() {
+            const story = document.getElementById('storyEditor').value;
+            if (story.trim()) {
+                localStorage.setItem('myStory', story);
+                alert('💾 故事已儲存！');
+            }
+        }
+
+        function publishStory() {
+            const story = document.getElementById('storyEditor').value;
+            if (story.trim()) {
+                document.getElementById('storySuccess').classList.add('show');
+                setTimeout(() => {
+                    showSection('gallery');
+                }, 2000);
+            }
+        }
+    </script>
+</body>
+</html>
